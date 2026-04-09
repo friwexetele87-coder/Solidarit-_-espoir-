@@ -1,0 +1,116 @@
+// Produits physiques + digitaux
+const products = [
+  {id:1, name:"Ventre Plat Pro", price:10900, type:"physique"},
+  {id:2, name:"Ceinture Amincissante", price:8000, type:"physique"},
+  {id:3, name:"Formation Vidéo Fitness", price:5000, type:"digital", file:"https://drive.google.com/uc?export=download&id=1AbCDeFGhijklmnopQRsTu"},
+  {id:4, name:"Ebook Nutrition", price:3000, type:"digital", file:"https://drive.google.com/uc?export=download&id=2XyZAbCDefGhIjKLmnOPq"}
+];
+
+let orders = [];
+let reviews = [
+  {name:"Alice", text:"Super produit !"}, 
+  {name:"Bob", text:"Livraison rapide, très satisfait !"}
+];
+
+const productsDiv = document.getElementById("products");
+products.forEach(p=>{
+  const div = document.createElement("div");
+  div.className="product-card";
+  div.innerHTML=`
+    <h3>${p.name}</h3>
+    <p>Prix : ${p.price} FCFA</p>
+    <button class="buy-btn" onclick="buyProduct(${p.id})">Acheter</button>
+  `;
+  productsDiv.appendChild(div);
+});
+
+function buyProduct(id){
+  const product = products.find(p=>p.id===id);
+  // Remplace ici ton vrai lien Awoopay pour chaque produit
+  let paymentLink = "";
+  if(product.id === 1) paymentLink = "https://pay.awoopay.com/tonLienVentrePlat";
+  if(product.id === 2) paymentLink = "https://pay.awoopay.com/tonLienCeinture";
+  if(product.id === 3) paymentLink = "https://pay.awoopay.com/tonLienVideo";
+  if(product.id === 4) paymentLink = "https://pay.awoopay.com/tonLienEbook";
+
+  window.open(paymentLink,"_blank");
+
+  orders.unshift({name:"Client anonyme", product:product.name, amount:product.price, type:product.type});
+
+  // Produit digital → lien unique
+  if(product.type==="digital"){
+    const uniqueLink = generateUniqueLink(product.file);
+    alert(`Téléchargez votre fichier ici : ${uniqueLink}`);
+  }
+
+  reviews.unshift({name:"Client anonyme", text:`J'ai acheté ${product.name}, super produit !`});
+  renderDashboard();
+  renderReviews();
+  wowEffect();
+}
+
+// Abonnement VIP
+function subscribeVIP(){
+  window.open(`https://pay.awoopay.com/tonLienVIP1000F`,"_blank");
+  alert("Merci pour votre abonnement VIP !");
+  reviews.unshift({name:"Client VIP", text:"Abonnement VIP activé"});
+  renderReviews();
+  wowEffect();
+}
+
+// Générer lien unique temporaire
+function generateUniqueLink(baseLink){
+  const token = Math.random().toString(36).substring(2,10);
+  return `${baseLink}&token=${token}`;
+}
+
+// Dashboard
+function renderDashboard(){
+  const dash=document.getElementById("dashboard");
+  dash.innerHTML="";
+  orders.forEach(o=>{
+    let info = `${o.name} a acheté ${o.product} : ${o.amount} FCFA [${o.type}]`;
+    if(o.type==="digital"){ info += " - Lien unique généré"; }
+    const div=document.createElement("div");
+    div.innerHTML=info;
+    dash.appendChild(div);
+  });
+}
+
+// Avis clients
+function renderReviews(){
+  const rev = document.getElementById("reviews");
+  rev.innerHTML="";
+  reviews.forEach(r=>{
+    const div = document.createElement("div");
+    div.innerHTML=`${r.name}: "${r.text}"`;
+    rev.appendChild(div);
+  });
+  let scrollAmount = 0;
+  setInterval(()=>{
+    scrollAmount += 1;
+    if(scrollAmount > rev.scrollHeight) scrollAmount = 0;
+    rev.scrollTop = scrollAmount;
+  },100);
+}
+
+// Popup effet “wow”
+function wowEffect(){
+  const wow = document.createElement("div");
+  wow.innerText="✨ Bravo ! ✨";
+  wow.style.position="fixed";
+  wow.style.top="50%";
+  wow.style.left="50%";
+  wow.style.transform="translate(-50%,-50%)";
+  wow.style.background="rgba(255,215,0,0.8)";
+  wow.style.color="#000";
+  wow.style.padding="20px";
+  wow.style.fontSize="24px";
+  wow.style.borderRadius="15px";
+  wow.style.zIndex="1000";
+  document.body.appendChild(wow);
+  setTimeout(()=>{ wow.remove(); },1500);
+}
+
+renderDashboard();
+renderReviews();
